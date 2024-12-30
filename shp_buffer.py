@@ -2,6 +2,8 @@
 
 import geopandas as gpd
 import os
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Path to the input point shapefile
 folder = r"E:\UAH_Classes\Research\Kansas"  # Replace with your directory path
@@ -9,15 +11,17 @@ filename = r"PWS\kansasPWS.shp"  # Replace with your shapefile name
 input_path = os.path.join(folder, filename)
 
 # Path to the output buffer shapefile
-output_filename = "PWSBuffer250.shp"
+buffer_distance = 150  # Value changes based on requirements
+
+output_filename = f"PWSBuffer{buffer_distance}.shp"
 output_path = os.path.join(folder, "PWS", output_filename)
+print(output_filename)
 
 # Read the point shapefile
 print("File Reading...")
 points_gdf = gpd.read_file(input_path)
 
 # Specify the buffer distance in the units of the shapefile's coordinate system
-buffer_distance = 250  # Change this value based on your specific requirements
 print(points_gdf.crs)  # print crs of point data
 
 # Create a buffer around each point
@@ -26,6 +30,28 @@ points_gdf['geometry'] = points_gdf.buffer(buffer_distance)
 
 # Save the buffered geometry to a new shapefile
 print(f"Saving buffer of {buffer_distance}")
-points_gdf.to_file(output_path)
+# points_gdf.to_file(output_path)
 
 print(f"Buffered shapefile saved to: {output_path}")
+
+
+# Plot to check the created buffer
+# Set the Seaborn style
+sns.set(style="whitegrid")  # You can choose other styles: darkgrid, whitegrid, dark, white, and ticks
+
+# Plot the buffered geometries
+fig, ax = plt.subplots(figsize=(10, 10))  # You can adjust the size as needed
+points_gdf.plot(ax=ax, color='blue', alpha=0.5)  # Adjust color and transparency as needed
+
+# Optional: Enhancements
+ax.set_title('Buffered Geometries', fontsize=15)
+ax.set_xlabel('Longitude', fontsize=12)
+ax.set_ylabel('Latitude', fontsize=12)
+
+# Remove the x and y axis for a cleaner look
+ax.set_xticks([])
+ax.set_yticks([])
+
+
+# Show the plot
+plt.show()
