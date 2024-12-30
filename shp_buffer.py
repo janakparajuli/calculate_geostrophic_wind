@@ -51,7 +51,7 @@ fig, ax = plt.subplots(figsize=(10, 10))  # You can adjust the size as needed
 points_gdf.plot(ax=ax, color='blue', alpha=0.5)  # Adjust color and transparency as needed
 
 # Optional: Enhancements
-ax.set_title('Buffered Geometries', fontsize=15)
+ax.set_title('Buffered PWS', fontsize=15)
 ax.set_xlabel('Longitude', fontsize=12)
 ax.set_ylabel('Latitude', fontsize=12)
 
