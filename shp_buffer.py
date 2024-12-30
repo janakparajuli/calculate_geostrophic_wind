@@ -28,6 +28,13 @@ print(points_gdf.crs)  # print crs of point data
 print(f"Creating buffer of {buffer_distance}")
 points_gdf['geometry'] = points_gdf.buffer(buffer_distance)
 
+# Dissolve all buffers into a single geometry
+print("Dissolving buffers...")
+dissolved_points_gdf = points_gdf.union_all()
+
+# Convert the dissolved geometry back into a GeoDataFrame for export and plotting
+points_gdf = gpd.GeoDataFrame(geometry=[dissolved_points_gdf], crs=points_gdf.crs)
+
 # Save the buffered geometry to a new shapefile
 print(f"Saving buffer of {buffer_distance}")
 # points_gdf.to_file(output_path)
@@ -52,6 +59,6 @@ ax.set_ylabel('Latitude', fontsize=12)
 ax.set_xticks([])
 ax.set_yticks([])
 
-
+plt.get_current_fig_manager().toolbar.pan()  # This toggles the pan/zoom mode on
 # Show the plot
 plt.show()
