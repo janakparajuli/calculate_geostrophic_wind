@@ -11,7 +11,7 @@ filename = r"PWS\kansasPWS.shp"  # Replace with your shapefile name
 input_path = os.path.join(folder, filename)
 
 # Path to the output buffer shapefile
-buffer_distance = 150  # Value changes based on requirements
+buffer_distance = 80  # Value changes based on requirements
 
 output_filename = f"PWSBuffer{buffer_distance}.shp"
 output_path = os.path.join(folder, "PWS", output_filename)
@@ -37,7 +37,7 @@ points_gdf = gpd.GeoDataFrame(geometry=[dissolved_points_gdf], crs=points_gdf.cr
 
 # Save the buffered geometry to a new shapefile
 print(f"Saving buffer of {buffer_distance}")
-# points_gdf.to_file(output_path)
+points_gdf.to_file(output_path)
 
 print(f"Buffered shapefile saved to: {output_path}")
 
