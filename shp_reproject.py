@@ -1,4 +1,4 @@
-# Python code to extract intersection of shp files
+# Python code to reproject and extract intersection of shp files
 import pandas as pd
 import geopandas as gpd
 import os
@@ -27,7 +27,7 @@ print("All set for clipping now")
 
 # Intersect both shapefiles
 print(f"Intersecting ...")
-glo3DBuildings = gpd.overlay(bound_file, shp_file, how = 'intersection')
+glo3DBuildings = gpd.overlay(bound_file, shp_file, how = 'intersection', keep_geom_type=False)
 
 print(f"Saving ...")
 #glo3DBuildings.to_file(os.path.join(folder, "Buildings","Heights","glo3DBuildings.shp"))
