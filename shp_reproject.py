@@ -30,6 +30,6 @@ print("All set for clipping now")
 
 print(f"Saving ...")
 #glo3DBuildings.to_file(os.path.join(folder, "Buildings","Heights","glo3DBuildings.shp"))
-# merged_shp_file.to_file(os.path.join(folder, "Buildings","Heights","KM_glo3DBuildings_Mer.shp"))
+shp_file.to_file(os.path.join(folder, "Buildings","Heights","KM_glo3DBuildings_Mer.shp"))
 print("Operation Completed ...")
 
