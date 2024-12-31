@@ -13,20 +13,17 @@ def calculate_area_and_height(folder_path):
         # Load the shapefile
         gdf = gpd.read_file(shp)
 
-        # Calculate area of each polygon (area is returned in square units of the CRS)
+        # Calculate area of each polygon
         gdf['Area'] = gdf['geometry'].area
+        mean_area = gdf['Area'].mean()
+        print(f"Mean Area for {shp}: {round(mean_area, 4)} sq. m")
 
         # Check if 'Height' field exists in the dataframe
         if 'Height' in gdf.columns:
-            # Calculate the average height
-            average_height = gdf['Height'].mean()
-            print(f"Average Height for {shp}: round({average_height}, 3) m")
+            mean_height = gdf['Height'].mean()
+            print(f"Mean Height for {shp}: {round(mean_height, 3)} m")
         else:
             print(f"No 'Height' field found in {shp}")
-
-        # Print area of each polygon
-        print("Area of each polygon (in square m):")
-        print(round(gdf['Area'], 4))
 
         # Optionally, save the GeoDataFrame back to a shapefile with the new 'Area' field
         # output_filename = os.path.splitext(shp)[0] + '_with_area.shp'
