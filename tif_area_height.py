@@ -23,6 +23,7 @@ def calculate_tree_canopy_stats(folder_path):
                 canopy_heights = band1[canopy_mask]
 
                 # Calculate statistics
+                min_height = canopy_heights.min() if canopy_heights.size > 0 else 0
                 mean_height = canopy_heights.mean() if canopy_heights.size > 0 else 0
                 max_height = canopy_heights.max() if canopy_heights.size > 0 else 0
                 total_coverage = np.count_nonzero(canopy_mask) * \
@@ -34,9 +35,11 @@ def calculate_tree_canopy_stats(folder_path):
 
                 # Print file-specific results
                 print(f"File: {filename}")
-                print(f"Mean Height: {mean_height:.2f}")
-                print(f"Max Height: {max_height:.2f}")
-                print(f"Total Coverage by Canopies: {total_coverage:.2f} square units")
+                print(f"Mean Height: {min_height:.3f} m")
+                print(f"Mean Height: {mean_height:.3f} m")
+                print(f"Max Height: {max_height:.3f} m")
+                print(f"Total Coverage by Canopies: {total_coverage:.3f} sq. m")
+                print(f"Total Coverage by Buffer: {area:.3f} sq. m")
                 print(f"Percentage of Coverage: {(total_coverage / area) * 100:.2f}%\n")
 
     # Calculate overall statistics
