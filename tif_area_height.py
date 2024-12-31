@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 def compute_tree_canopy_metrics(raster_path):
     with rasterio.open(raster_path) as src:
+        print(f"Opening file ...")
         # Initialize metrics
         total_pixels = 0.0
         canopy_pixels = 0.0
@@ -14,6 +15,7 @@ def compute_tree_canopy_metrics(raster_path):
 
         # Process the raster in windows
         for window in src.block_windows(1):
+            print(f"Reading file ...")
             heights = src.read(1, window=window[1]).astype(np.float64)  # Read data in the current window as float64
             nodata = 128
             valid_data_mask = (heights != nodata)
@@ -24,6 +26,7 @@ def compute_tree_canopy_metrics(raster_path):
             canopy_pixels += canopy_mask.sum()
 
             # Update min and max heights within valid canopy heights
+            print("Calculating min and max heights ...")
             if np.any(canopy_mask):  # Check if there's any canopy pixel in the current window
                 max_height = max(max_height, np.max(heights[canopy_mask]))
                 min_height = min(min_height, np.min(heights[canopy_mask]))
@@ -35,9 +38,10 @@ def compute_tree_canopy_metrics(raster_path):
             total_canopy_coverage += canopy_mask.sum() * (src.res[0] * src.res[1])
 
         # Calculate overall metrics
+        print(f"Still calculating ...")
         total_area = total_pixels * (src.res[0] * src.res[1])
         percentage_coverage = (total_canopy_coverage / total_area) * 100
-        mean_height = total_height / canopy_pixels if canopy_pixels else 0
+        mean_height = total_height / total_pixels if total_pixels else 0
 
         print(f"Min Height: {min_height if min_height != float('inf') else 'No canopy pixels found'} meters")
         print(f"Max Height: {max_height if max_height != float('-inf') else 'No canopy pixels found'} meters")
@@ -48,5 +52,5 @@ def compute_tree_canopy_metrics(raster_path):
     return heights, canopy_mask, total_pixels, canopy_pixels, min_height, max_height
 
 # Path to your TIFF file
-raster_path = r"E:\UAH_Classes\Research\Kansas\Canopy\Results\kansasCanopy20.tif"
+raster_path = r"E:\UAH_Classes\Research\Kansas\Canopy\Results\kansasCanopy40.tif"
 heights, mask, total_pixels, canopy_pixels, min_height, max_height = compute_tree_canopy_metrics(raster_path)
