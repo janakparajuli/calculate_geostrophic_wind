@@ -41,4 +41,5 @@ def calculate_area_and_height(folder_path):
 
 # Specify the folder containing the shapefiles
 folder_path = r"E:\UAH_Classes\Research\Kansas\Buildings\Heights"  # path to the directory containing shapefiles
-calculate_area_and_height(folder_path)
+folder = r"E:\UAH_Classes\Research\Kansas\PWS"
+calculate_area_and_height(folder)
