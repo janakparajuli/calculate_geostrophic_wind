@@ -4,37 +4,40 @@ import matplotlib.pyplot as plt
 
 
 def compute_tree_canopy_metrics(raster_path):
-    # Open the raster file
     with rasterio.open(raster_path) as src:
-        # Read the first band (assuming height data is in the first band)
-        canopy_heights = src.read(1)
+        print("Raster dtype:", src.dtypes)  # Print the data type of the raster
+        total_pixels = 0
+        canopy_pixels = 0
+        total_height = 0.0
+        total_canopy_coverage = 0.0
 
-        # Calculate non-zero (tree canopy) coverage
-        canopy_mask = canopy_heights > 0  # Change 0 to the appropriate threshold if different
-        total_pixels = canopy_heights.size
-        canopy_pixels = np.count_nonzero(canopy_mask)
-        total_canopy_coverage = canopy_pixels * src.res[0] * src.res[1]  # Total area in square meters
-        percentage_coverage = (canopy_pixels / total_pixels) * 100
+        for ji, window in src.block_windows(1):
+            heights = src.read(1, window=window)  # Read data without conversion
+            print("Unique heights before conversion:", np.unique(heights))  # Debug line
 
-        # Compute statistics
-        max_height = np.max(canopy_heights)
-        mean_height = np.mean(canopy_heights[canopy_mask])  # Mean over canopy areas only
+            # Convert data type if necessary
+            if heights.dtype != np.float64:
+                heights = heights.astype(np.float64)
 
-        print(f"Max Height: {max_height} meters")
-        print(f"Mean Height: {mean_height} meters")
-        print(f"Average Coverage: {total_canopy_coverage / total_pixels} square meters per pixel")
-        print(f"Total Coverage by Tree Canopies: {total_canopy_coverage} square meters")
-        print(f"Percentage of Coverage by Tree Canopies: {percentage_coverage}%")
+            mask = heights > 1
+            total_pixels += heights.size
+            canopy_pixels += mask.sum()
+            total_height += heights[mask].sum()
+            total_canopy_coverage += mask.sum() * src.res[0] * src.res[1]
 
-        # Optional: visualize the raster
-        plt.imshow(canopy_heights, cmap='viridis')
-        plt.colorbar(label='Height (m)')
-        plt.title('Tree Canopy Heights')
-        plt.xlabel('Pixel X Coordinate')
-        plt.ylabel('Pixel Y Coordinate')
-        plt.show()
+        total_area = total_pixels * src.res[0] * src.res[1]
+        percentage_coverage = (total_canopy_coverage / total_area) * 100
+        mean_height = total_height / canopy_pixels if canopy_pixels else 0
+
+        print("Min Height:", heights.min(), "meters")
+        print("Max Height:", heights.max(), "meters")
+        print("Mean Height:", mean_height, "meters")
+        print("Total Coverage by Tree Canopies:", total_canopy_coverage, "square meters")
+        print("Percentage of Coverage by Tree Canopies:", percentage_coverage, "%")
+
+    return heights, mask, total_pixels, canopy_pixels
 
 
 # Path to your TIFF file
 raster_path = r"E:\UAH_Classes\Research\Kansas\Canopy\Results\kansasCanopy20.tif"
-compute_tree_canopy_metrics(raster_path)
+ht, mask, tot_pxl, cnp_pxl = compute_tree_canopy_metrics(raster_path)
