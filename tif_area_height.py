@@ -21,7 +21,7 @@ def compute_tree_canopy_metrics(raster_path):
             valid_data_mask = (heights != nodata)
 
             # Mask for canopy pixels
-            canopy_mask = (heights > 1) & valid_data_mask
+            canopy_mask = (heights > 0) & valid_data_mask
             total_pixels += valid_data_mask.sum()
             canopy_pixels += canopy_mask.sum()
 
@@ -52,5 +52,5 @@ def compute_tree_canopy_metrics(raster_path):
     return heights, canopy_mask, total_pixels, canopy_pixels, min_height, max_height
 
 # Path to your TIFF file
-raster_path = r"E:\UAH_Classes\Research\Kansas\Canopy\Results\kansasCanopy40.tif"
+raster_path = r"E:\UAH_Classes\Research\Kansas\Canopy\Results\kansasCanopy200.tif"
 heights, mask, total_pixels, canopy_pixels, min_height, max_height = compute_tree_canopy_metrics(raster_path)
