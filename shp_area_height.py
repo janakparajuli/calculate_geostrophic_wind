@@ -5,7 +5,7 @@ import os
 
 def calculate_area_and_height(folder_path):
     # List all shapefiles in the specified folder
-    shapefiles = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith('.shp')]
+    shapefiles = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith('0.shp')]
 
     # Process each shapefile
     for shp in shapefiles:
@@ -13,10 +13,19 @@ def calculate_area_and_height(folder_path):
         # Load the shapefile
         gdf = gpd.read_file(shp)
 
+        print(".........")
+        # Calculate the number of polygons
+        num_polygons = len(gdf)
+        print(f"Number of polygons in {shp}: {num_polygons}")
+
         # Calculate area of each polygon
         gdf['Area'] = gdf['geometry'].area
         mean_area = gdf['Area'].mean()
         print(f"Mean Area for {shp}: {round(mean_area, 4)} sq. m")
+
+        # Calculate total area of each shp
+        sum_area = gdf['Area'].sum()
+        print(f"Total Footprint Area for {shp}: {round(sum_area, 4)} sq. m")
 
         # Check if 'Height' field exists in the dataframe
         if 'Height' in gdf.columns:
