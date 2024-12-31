@@ -18,7 +18,7 @@ def calculate_area_and_height(folder_path):
         num_polygons = len(gdf)
         print(f"Number of polygons in {shp}: {num_polygons}")
 
-        # Calculate area of each polygon
+        # Calculate mean area of each polygon
         gdf['Area'] = gdf['geometry'].area
         mean_area = gdf['Area'].mean()
         print(f"Mean Area for {shp}: {round(mean_area, 4)} sq. m")
@@ -29,8 +29,11 @@ def calculate_area_and_height(folder_path):
 
         # Check if 'Height' field exists in the dataframe
         if 'Height' in gdf.columns:
+            # Calculate min, max, and mean height
+            min_height = gdf['Height'].min()
             mean_height = gdf['Height'].mean()
-            print(f"Mean Height for {shp}: {round(mean_height, 3)} m")
+            max_height = gdf['Height'].max()
+            print(f"Min, Mean, and Max Height for {shp}: {round(min_height, 3)} m, {round(mean_height, 3)} m, and {round(max_height, 3)} m")
         else:
             print(f"No 'Height' field found in {shp}")
 
