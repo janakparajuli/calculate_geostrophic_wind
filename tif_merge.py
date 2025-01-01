@@ -1,6 +1,7 @@
-import rasterio
-from rasterio.warp import reproject, Resampling, calculate_default_transform
 import numpy as np
+import rasterio
+from rasterio.merge import merge  # Corrected import statement for merge
+from rasterio.warp import reproject, Resampling, calculate_default_transform
 import glob
 import os
 
@@ -15,7 +16,7 @@ if not datasets:
     raise RuntimeError("Failed to open files.")
 
 # Merge datasets using the maximum value method
-mosaic, out_transform = rasterio.merge.merge(datasets, method='max')
+mosaic, out_transform = merge(datasets, method='max')  # Use of the corrected merge function
 
 # Set destination CRS and calculate transformation
 dest_crs = 'EPSG:3857'
@@ -38,7 +39,8 @@ out_meta.update({
 reprojected = np.full((mosaic.shape[0], height, width), out_meta['nodata'], dtype=rasterio.float32)
 for i in range(mosaic.shape[0]):
     reproject(
-        mosaic[i], reprojected[i],
+        source=mosaic[i],
+        destination=reprojected[i],
         src_transform=out_transform,
         dst_transform=transform,
         src_crs=datasets[0].crs,
@@ -58,5 +60,8 @@ with rasterio.open(output_path, 'w', **out_meta) as dst:
 # Ensure the file has statistics
 with rasterio.open(output_path) as src:
     for band in range(1, src.count + 1):
-        stats = src.read(band)
-        print(f"Statistics for band {band}: min={np.min(stats)}, max={np.max(stats)}, mean={np.mean(stats)}")
+        data = src.read(band)
+        if np.all(data == src.nodata):
+            print(f"No valid data in band {band}")
+        else:
+            print(f"Statistics for band {band}: min={data.min()}, max={data.max()}, mean={data.mean()}")
