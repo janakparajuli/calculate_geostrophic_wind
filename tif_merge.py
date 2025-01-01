@@ -6,64 +6,54 @@ import glob
 import os
 
 def max_merge_method(old_data, new_data, old_nodata, new_nodata, index=None, **kwargs):
-    """
-    Custom merge function to take the maximum value where datasets overlap.
-    Assumes that the nodata values are marked identically in both datasets.
-    Accepts arbitrary keyword arguments (**kwargs) to be compatible with rasterio's internal calls.
-    """
-    # Create a mask where either the old data or new data is not nodata
+    # Custom merge function as before
     mask = (old_data != old_nodata) & (new_data != new_nodata)
+    return np.where(mask, np.maximum(old_data, new_data), old_data)
 
-    # Use maximum value from old and new data where mask is True
-    max_data = np.maximum(old_data, new_data)
-
-    # Where the mask is False, keep the old data values (preserve existing data)
-    return np.where(mask, max_data, old_data)
-
-# Define the path and find all TIFF files
 folder_path = r"E:\UAH_Classes\Research\Kansas\ECOSTRESS_LST"
 file_paths = glob.glob(os.path.join(folder_path, '*.tif'))
-datasets = [rasterio.open(f) for f in file_paths if f.endswith('.tif')]  # Ensure these are TIFF files
+datasets = [rasterio.open(f) for f in file_paths if f.endswith('.tif')]
 
-# Check for empty dataset list
 if not datasets:
     raise RuntimeError("No TIFF files found in the specified directory.")
 
-# Merge using the custom max function
+# Merge datasets
 mosaic, out_transform = merge(datasets, method=max_merge_method)
+nodata = datasets[0].nodata  # Assuming all datasets have the same nodata value
 
-# Desired CRS and resolution
+# Desired CRS, resolution, and metadata for output
 desired_crs = 'EPSG:3857'
 desired_resolution = 10
-
-# Get transformation and metadata for reprojecting
+out_meta = datasets[0].meta.copy()
 transform, width, height = calculate_default_transform(
     datasets[0].crs, desired_crs, datasets[0].width, datasets[0].height, *datasets[0].bounds, resolution=desired_resolution)
-
-out_meta = datasets[0].meta.copy()
 out_meta.update({
     "driver": "GTiff",
     "height": height,
     "width": width,
     "transform": transform,
     "crs": desired_crs,
-    "count": mosaic.shape[0]
+    "nodata": nodata,
+    "dtype": 'float32'  # Ensure correct data type if needed
 })
 
-# Reproject and resample the mosaic to desired CRS and resolution
-reprojected_mosaic = np.zeros((mosaic.shape[0], height, width), dtype=mosaic.dtype)
+# Reproject and resample the mosaic
+reprojected_mosaic = np.full((mosaic.shape[0], height, width), nodata, dtype='float32')  # Initialize with nodata
 for i in range(mosaic.shape[0]):  # For each band
     reproject(
-        mosaic[i],
-        reprojected_mosaic[i],
+        source=mosaic[i],
+        destination=reprojected_mosaic[i],
         src_transform=out_transform,
         src_crs=datasets[0].crs,
         dst_transform=transform,
         dst_crs=desired_crs,
-        resampling=Resampling.bilinear  # Using bilinear resampling for continuous data
+        src_nodata=nodata,
+        dst_nodata=nodata,
+        resampling=Resampling.nearest  # Change to nearest if appropriate
     )
 
-# Save the reprojected and resampled mosaic to file
 output_file = os.path.join(folder_path, 'Results', 'mosaic_max_3857_10m.tif')
 with rasterio.open(output_file, 'w', **out_meta) as out_ds:
     out_ds.write(reprojected_mosaic)
+
+print("Completed Operation ... ")
