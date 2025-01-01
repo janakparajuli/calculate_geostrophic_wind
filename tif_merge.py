@@ -1,4 +1,9 @@
 import numpy as np
+import rasterio
+from rasterio.merge import merge
+from rasterio.warp import calculate_default_transform, reproject, Resampling
+import glob
+import os
 
 def max_merge_method(old_data, new_data, old_nodata, new_nodata, index=None, **kwargs):
     """
@@ -15,11 +20,6 @@ def max_merge_method(old_data, new_data, old_nodata, new_nodata, index=None, **k
     # Where the mask is False, keep the old data values (preserve existing data)
     return np.where(mask, max_data, old_data)
 
-import rasterio
-from rasterio.merge import merge
-import glob
-import os
-
 # Define the path and find all TIFF files
 folder_path = r"E:\UAH_Classes\Research\Kansas\ECOSTRESS_LST"
 file_paths = glob.glob(os.path.join(folder_path, '*.tif'))
@@ -32,17 +32,38 @@ if not datasets:
 # Merge using the custom max function
 mosaic, out_transform = merge(datasets, method=max_merge_method)
 
-# Metadata for output
+# Desired CRS and resolution
+desired_crs = 'EPSG:3857'
+desired_resolution = 10
+
+# Get transformation and metadata for reprojecting
+transform, width, height = calculate_default_transform(
+    datasets[0].crs, desired_crs, datasets[0].width, datasets[0].height, *datasets[0].bounds, resolution=desired_resolution)
+
 out_meta = datasets[0].meta.copy()
 out_meta.update({
     "driver": "GTiff",
-    "height": mosaic.shape[1],
-    "width": mosaic.shape[2],
-    "transform": out_transform,
+    "height": height,
+    "width": width,
+    "transform": transform,
+    "crs": desired_crs,
     "count": mosaic.shape[0]
 })
 
-# Save the merged mosaic to file
-output_file = os.path.join(folder_path, 'Results', 'mosaic_max.tif')
+# Reproject and resample the mosaic to desired CRS and resolution
+reprojected_mosaic = np.zeros((mosaic.shape[0], height, width), dtype=mosaic.dtype)
+for i in range(mosaic.shape[0]):  # For each band
+    reproject(
+        mosaic[i],
+        reprojected_mosaic[i],
+        src_transform=out_transform,
+        src_crs=datasets[0].crs,
+        dst_transform=transform,
+        dst_crs=desired_crs,
+        resampling=Resampling.bilinear  # Using bilinear resampling for continuous data
+    )
+
+# Save the reprojected and resampled mosaic to file
+output_file = os.path.join(folder_path, 'Results', 'mosaic_max_3857_10m.tif')
 with rasterio.open(output_file, 'w', **out_meta) as out_ds:
-    out_ds.write(mosaic)
+    out_ds.write(reprojected_mosaic)
