@@ -17,3 +17,29 @@ def max_merge_method(old_data, new_data, old_nodata, new_nodata, index=None):
 
     # Where the mask is False, keep the old data values (preserve existing data)
     return np.where(mask, max_data, old_data)
+
+
+import rasterio
+from rasterio.merge import merge
+import glob
+
+# Open all raster datasets to be merged
+file_paths = glob.glob('path/to/rasters/*.tif')
+datasets = [rasterio.open(f) for f in file_paths]
+
+# Use the custom function for merging with the 'max' method
+mosaic, out_transform = merge(datasets, method=max_merge_method)
+
+# Example for saving the mosaic to a file
+out_meta = datasets[0].meta.copy()
+out_meta.update({
+    "driver": "GTiff",
+    "height": mosaic.shape[1],
+    "width": mosaic.shape[2],
+    "transform": out_transform,
+    "count": mosaic.shape[0]
+})
+
+with rasterio.open('path/to/output/mosaic_max.tif', 'w', **out_meta) as out_ds:
+    out_ds.write(mosaic)
+
