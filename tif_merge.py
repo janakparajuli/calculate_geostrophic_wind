@@ -24,7 +24,8 @@ from rasterio.merge import merge
 import glob
 
 # Open all raster datasets to be merged
-file_paths = glob.glob('path/to/rasters/*.tif')
+folder_path = r"E:\UAH_Classes\Research\Kansas\ECOSTRESS_LST"
+file_paths = glob.glob(folder_path + '*.tif')
 datasets = [rasterio.open(f) for f in file_paths]
 
 # Use the custom function for merging with the 'max' method
@@ -40,6 +41,6 @@ out_meta.update({
     "count": mosaic.shape[0]
 })
 
-with rasterio.open('path/to/output/mosaic_max.tif', 'w', **out_meta) as out_ds:
+with rasterio.open(folder_path + 'Results/mosaic_max.tif', 'w', **out_meta) as out_ds:
     out_ds.write(mosaic)
 
