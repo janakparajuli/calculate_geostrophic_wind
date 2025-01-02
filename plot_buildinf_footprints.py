@@ -3,7 +3,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Sample data creation, replace this with your actual data load method
 data = {
     'PWS': ['PWS20', 'PWS40', 'PWS60', 'PWS80', 'PWS100', 'PWS150', 'PWS200'],
     'Total Footprint Area (sq. m)': [132718.424, 464189.275, 1008682.0307, 1757363.5528, 2647837.5403, 5633673.8242, 9522654.4299],
@@ -14,7 +13,7 @@ data = {
 df = pd.DataFrame(data)
 
 # Convert PWS to a numeric value for easier plotting
-df['PWS_Value'] = df['PWS'].str.extract('(\d+)').astype(int)
+df['PWS_Value'] = df['PWS'].str.extract(r'(\d+)').astype(int)
 
 # Plotting Total Footprint Area vs PWS
 plt.figure(figsize=(12, 6))
@@ -40,3 +39,4 @@ plt.ylabel('Coverage (%)')
 
 plt.tight_layout()
 plt.show()
+
