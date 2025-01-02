@@ -9,6 +9,8 @@ def read_raster_as_array(raster_path, window):
     with rasterio.open(raster_path) as src:
         data = src.read(1, window=window)
         nodata = src.nodata
+        # Ensure data is float to handle NaN
+        data = data.astype('float32')
         return data, nodata
 
 # Determine the overlapping window based on raster bounds
@@ -46,15 +48,19 @@ except ValueError as e:
     print(e)
     raise SystemExit("Exiting: Raster overlap calculation failed.")
 
+# Read the overlapping part of each raster
 raster_data = [read_raster_as_array(raster.name, window) for raster, window in zip(rasters, windows)]
 
+# Stack arrays to a single 3D numpy array (bands, rows, columns)
 data_stack = np.stack([data for data, _ in raster_data], axis=0)
 nodata_values = [nodata for _, nodata in raster_data]
 
+# Replace nodata with NaN and handle data types
 for i, nodata in enumerate(nodata_values):
     if nodata is not None:
         data_stack[i][data_stack[i] == nodata] = np.nan
 
+# Compute pairwise correlation between each pair of rasters
 num_rasters = len(raster_paths)
 correlation_matrix = np.full((num_rasters, num_rasters), np.nan)
 
@@ -65,8 +71,10 @@ for i in range(num_rasters):
             correlation_matrix[i, j], _ = pearsonr(data_stack[i][valid_mask], data_stack[j][valid_mask])
             correlation_matrix[j, i] = correlation_matrix[i, j]
 
+# Close all raster files
 for raster in rasters:
     raster.close()
 
+# Print the correlation matrix
 print("Correlation Matrix:")
 print(correlation_matrix)
