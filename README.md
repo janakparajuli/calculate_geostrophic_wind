@@ -1,2 +1,1 @@
-# calculate_geostrophic_wind
-This module can be used to calculate geostrophic wind.
+# This repo consists of tools for quick assessment of raster and vector data
