@@ -16,7 +16,7 @@ if not datasets:
     raise RuntimeError("Failed to open files.")
 
 # Merge datasets using the maximum value method
-mosaic, out_transform = merge(datasets, method='max')  # Use of the corrected merge function
+mosaic, out_transform = merge(datasets, method='sum')  # Use of the corrected merge function
 
 # Set destination CRS and calculate transformation
 dest_crs = 'EPSG:3857'
