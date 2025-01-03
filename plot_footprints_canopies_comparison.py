@@ -11,7 +11,7 @@ data_buildings = {
 
 df_buildings = pd.DataFrame(data_buildings)
 # Convert PWS to a numeric value for easier plotting
-df_buildings['PWS_Value'] = df_buildings['PWS'].str.extract('(\d+)').astype(int)
+df_buildings['PWS_Value'] = df_buildings['PWS'].str.extract(r'(\d+)').astype(int)
 
 data_canopy = {
     "PWS": ["PWS20", "PWS40", "PWS60", "PWS80", "PWS100", "PWS150", "PWS200"],
@@ -43,4 +43,10 @@ axes[1].set_xlabel('Canopy Coverage (%)')
 axes[1].set_ylabel('Building Coverage (%)')
 axes[1].grid(True)
 plt.tight_layout()
+plt.show()
+
+
+# Selecting relevant columns for multivariate analysis
+columns = ['Coverage (%)_bld', 'Mean Building Height (m)', 'Coverage (%)_can', 'Mean Canopy Height (m)']
+sns.pairplot(df_combined[columns])
 plt.show()
