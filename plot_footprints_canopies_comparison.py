@@ -50,3 +50,8 @@ plt.show()
 columns = ['Coverage (%)_bld', 'Mean Building Height (m)', 'Coverage (%)_can', 'Mean Canopy Height (m)']
 sns.pairplot(df_combined[columns])
 plt.show()
+
+# Correlation plot
+sns.heatmap(df_combined[['Mean Building Height (m)', 'Mean Canopy Height (m)']].corr(), annot=True, cmap='coolwarm', fmt=".2f")
+plt.title('Correlation between Building Height and Canopy Height')
+plt.show()
