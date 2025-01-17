@@ -40,7 +40,7 @@ import glob
 
 # Assuming the height data has been successfully extracted and saved
 # Read the CSV file into a DataFrame
-csv_file_path = "E:\\UAH_Classes\\Research\\Kansas\\Buildings\\Heights\\Heights1.csv"
+csv_file_path = "E:\\UAH_Classes\\Research\\Kansas\\Buildings\\Heights\\Building_Reflectance.csv"
 heights_df = pd.read_csv(csv_file_path)
 
 # Prepare data for the beanplot - extracting each series of heights
@@ -73,9 +73,9 @@ sm.graphics.beanplot(height_data, labels=heights_df.columns, side='both', jitter
 #     ax.plot([i + 1], [median_val], 'wo')  # 'wo' stands for white circle marker
 
 # Customize plot
-ax.set_title('Beanplot of Building Heights within PWS Buffer')
+ax.set_title('Beanplot of Building Reflectance within PWS Buffer')
 ax.set_xlabel('PWS Buffer Distance')
-ax.set_ylabel('Building Heights (meters)')
+ax.set_ylabel('Building Reflectance')
 
 # Setting y-axis ticks to show only some representative values
 max_height = max([max(data) for data in height_data if len(data) > 0])
