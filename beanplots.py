@@ -51,20 +51,23 @@ fig, ax = plt.subplots(figsize=(12, 8))
 
 # Define plot options
 plot_opts = {
+    'bean_lw':0.5,
     'violin_width':0.75,
     'cutoff':True,
     'cutoff_val': 5,  # Absolute cutoff for bean width
     'cutoff_type': 'abs',  # Type of cutoff, 'abs' for absolute value cutoff
-    'label_fontsize': 'small'  # Font size for labels
+    'label_fontsize': 'small',  # Font size for labels
+    'bean_show_meadian':True,
+    'jitter_marker_size':4
 }
 
 # Create a beanplot
 sm.graphics.beanplot(height_data, labels=heights_df.columns, side='both', jitter=True, plot_opts=plot_opts, ax=ax)
 
 # Manually add median lines
-for i, data in enumerate(height_data):
-    median_val = np.median(data)
-    ax.plot([i + 1], [median_val], 'wo')  # 'wo' stands for white circle marker
+# for i, data in enumerate(height_data):
+#     median_val = np.median(data)
+#     ax.plot([i + 1], [median_val], 'wo')  # 'wo' stands for white circle marker
 
 # Customize plot
 ax.set_title('Beanplot of PWS Buffers vs Height')
