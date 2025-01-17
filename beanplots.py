@@ -32,7 +32,8 @@ import glob
 # Part B: Read Heights and Prepare bean plots
 import pandas as pd
 import matplotlib.pyplot as plt
-from statsmodels.graphics import beanplot
+import numpy as np
+import statsmodels.api as sm
 
 # Path to the CSV file
 csv_file_path = "E:\\UAH_Classes\\Research\\Kansas\\Buildings\\Heights\\Heights.csv"
@@ -46,8 +47,20 @@ height_data = [heights_df[col].dropna().values for col in heights_df.columns]
 # Create the figure and axis objects
 plt.figure(figsize=(12, 8))
 
+# Define plot options
+plot_opts = {
+    'cutoff_val': 5,  # Absolute cutoff for bean width
+    'cutoff_type': 'abs',  # Type of cutoff, 'abs' for absolute value cutoff
+    'label_fontsize': 'small'  # Font size for labels
+}
+
 # Create a beanplot
-beanplot.beanplot(height_data, labels=heights_df.columns, show_means=False, show_median=True, side='both')
+sm.graphics.beanplot(height_data, labels=heights_df.columns, side='both', plot_opts=plot_opts)
+
+# Manually add median lines
+for i, data in enumerate(height_data):
+    median_val = np.median(data)
+    plt.plot([i + 1], [median_val], 'wo')  # 'wo' stands for white circle marker
 
 # Customize plot
 plt.title('Beanplot of PWS Buffers vs Height')
