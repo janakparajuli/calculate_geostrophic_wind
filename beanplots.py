@@ -60,8 +60,8 @@ plot_opts = {
     'cutoff_type': 'std',  # Type of cutoff, 'abs' for absolute value cutoff
     'label_fontsize': 'small',  # Font size for labels
     'bean_show_meadian':True,
-    'jitter_marker_size':4,
-    'bean_legend_text':'Height'
+    'jitter_marker_size':1,
+    'bean_legend_text':'Reflectance'
 }
 
 # Create a beanplot
