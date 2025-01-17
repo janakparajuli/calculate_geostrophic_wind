@@ -9,6 +9,7 @@ directory = "E:\\UAH_Classes\\Research\\Kansas\\Buildings\\Heights"
 # List of suffixes for the shapefiles to process
 suffixes = ["20", "40", "60", "80", "100", "150", "200"]
 
+print(f'Extracting heights')
 # Loop through each suffix and extract height data from corresponding shapefiles
 heights_list = [
     gpd.read_file(shp_file)['Height'] for suffix in suffixes
@@ -18,6 +19,7 @@ heights_list = [
 
 # Create a DataFrame from the list of Series
 heights_df = pd.concat(heights_list, axis=1, keys=[f"PWS{s}" for s in suffixes])
+print(f'Heights extracted and concatenated')
 
 # Save the DataFrame to a CSV file in the same folder
 csv_file_path = os.path.join(directory, "Heights.csv")
