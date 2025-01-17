@@ -34,18 +34,20 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import statsmodels.api as sm
+import geopandas as gpd
+import os
+import glob
 
-# Path to the CSV file
-csv_file_path = "E:\\UAH_Classes\\Research\\Kansas\\Buildings\\Heights\\Heights.csv"
-
+# Assuming the height data has been successfully extracted and saved
 # Read the CSV file into a DataFrame
+csv_file_path = "E:\\UAH_Classes\\Research\\Kansas\\Buildings\\Heights\\Heights.csv"
 heights_df = pd.read_csv(csv_file_path)
 
 # Prepare data for the beanplot - extracting each series of heights
 height_data = [heights_df[col].dropna().values for col in heights_df.columns]
 
 # Create the figure and axis objects
-plt.figure(figsize=(12, 8))
+fig, ax = plt.subplots(figsize=(12, 8))
 
 # Define plot options
 plot_opts = {
@@ -55,18 +57,26 @@ plot_opts = {
 }
 
 # Create a beanplot
-sm.graphics.beanplot(height_data, labels=heights_df.columns, side='both', plot_opts=plot_opts)
+sm.graphics.beanplot(height_data, labels=heights_df.columns, side='both', plot_opts=plot_opts, ax=ax)
 
 # Manually add median lines
 for i, data in enumerate(height_data):
     median_val = np.median(data)
-    plt.plot([i + 1], [median_val], 'wo')  # 'wo' stands for white circle marker
+    ax.plot([i + 1], [median_val], 'wo')  # 'wo' stands for white circle marker
 
 # Customize plot
-plt.title('Beanplot of PWS Buffers vs Height')
-plt.xlabel('PWS Buffer')
-plt.ylabel('Height (meters)')
-plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+ax.set_title('Beanplot of PWS Buffers vs Height')
+ax.set_xlabel('PWS Buffer')
+ax.set_ylabel('Height (meters)')
+
+# Setting y-axis ticks to show only some representative values
+max_height = max([max(data) for data in height_data if len(data) > 0])
+min_height = min([min(data) for data in height_data if len(data) > 0])
+# You can adjust the 'num' parameter to increase or decrease the number of ticks
+ax.set_yticks(np.linspace(min_height, max_height, num=500))
+
+# Set custom x-tick labels with rotation for better readability
+ax.set_xticklabels(heights_df.columns, rotation=45)
 
 # Show the plot
 plt.tight_layout()
