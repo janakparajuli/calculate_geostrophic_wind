@@ -40,7 +40,7 @@ import glob
 
 # Assuming the height data has been successfully extracted and saved
 # Read the CSV file into a DataFrame
-csv_file_path = "E:\\UAH_Classes\\Research\\Kansas\\Buildings\\Heights\\Heights.csv"
+csv_file_path = "E:\\UAH_Classes\\Research\\Kansas\\Buildings\\Heights\\Heights1.csv"
 heights_df = pd.read_csv(csv_file_path)
 
 # Prepare data for the beanplot - extracting each series of heights
