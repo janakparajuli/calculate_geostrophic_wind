@@ -51,13 +51,15 @@ fig, ax = plt.subplots(figsize=(12, 8))
 
 # Define plot options
 plot_opts = {
+    'violin_width':0.75,
+    'cutoff':True,
     'cutoff_val': 5,  # Absolute cutoff for bean width
     'cutoff_type': 'abs',  # Type of cutoff, 'abs' for absolute value cutoff
     'label_fontsize': 'small'  # Font size for labels
 }
 
 # Create a beanplot
-sm.graphics.beanplot(height_data, labels=heights_df.columns, side='both', plot_opts=plot_opts, ax=ax)
+sm.graphics.beanplot(height_data, labels=heights_df.columns, side='both', jitter=True, plot_opts=plot_opts, ax=ax)
 
 # Manually add median lines
 for i, data in enumerate(height_data):
@@ -73,7 +75,7 @@ ax.set_ylabel('Height (meters)')
 max_height = max([max(data) for data in height_data if len(data) > 0])
 min_height = min([min(data) for data in height_data if len(data) > 0])
 # You can adjust the 'num' parameter to increase or decrease the number of ticks
-ax.set_yticks(np.linspace(min_height, max_height, num=500))
+ax.set_yticks(np.linspace(min_height, max_height, num=6))
 
 # Set custom x-tick labels with rotation for better readability
 ax.set_xticklabels(heights_df.columns, rotation=45)
