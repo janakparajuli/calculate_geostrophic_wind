@@ -30,3 +30,27 @@ import glob
 # # End of Part A
 
 # Part B: Read Heights and Prepare bean plots
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Path to the CSV file
+csv_file_path = "E:\\UAH_Classes\\Research\\Kansas\\Buildings\\Heights\\Heights.csv"
+
+# Read the CSV file into a DataFrame
+heights_df = pd.read_csv(csv_file_path)
+
+# Melt the DataFrame to make it suitable for seaborn's plotting functions
+melted_df = heights_df.melt(var_name='PWS_Buffer', value_name='Height')
+
+# Plotting the beanplot using seaborn's violin plot, which is similar to a beanplot
+plt.figure(figsize=(12, 8))
+sns.violinplot(x='PWS_Buffer', y='Height', data=melted_df, inner='stick', scale='width')
+plt.title('Beanplot of PWS Buffers vs Height')
+plt.xlabel('PWS Buffer')
+plt.ylabel('Height (meters)')
+plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+plt.tight_layout()
+
+# Show the plot
+plt.show()
