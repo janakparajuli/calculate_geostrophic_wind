@@ -31,8 +31,8 @@ import glob
 
 # Part B: Read Heights and Prepare bean plots
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
+from statsmodels.graphics import beanplot
 
 # Path to the CSV file
 csv_file_path = "E:\\UAH_Classes\\Research\\Kansas\\Buildings\\Heights\\Heights.csv"
@@ -40,17 +40,21 @@ csv_file_path = "E:\\UAH_Classes\\Research\\Kansas\\Buildings\\Heights\\Heights.
 # Read the CSV file into a DataFrame
 heights_df = pd.read_csv(csv_file_path)
 
-# Melt the DataFrame to make it suitable for seaborn's plotting functions
-melted_df = heights_df.melt(var_name='PWS_Buffer', value_name='Height')
+# Prepare data for the beanplot - extracting each series of heights
+height_data = [heights_df[col].dropna().values for col in heights_df.columns]
 
-# Plotting the beanplot using seaborn's violin plot, which is similar to a beanplot
+# Create the figure and axis objects
 plt.figure(figsize=(12, 8))
-sns.violinplot(x='PWS_Buffer', y='Height', data=melted_df, inner='stick', density_norm='width')
+
+# Create a beanplot
+beanplot.beanplot(height_data, labels=heights_df.columns, show_means=False, show_median=True, side='both')
+
+# Customize plot
 plt.title('Beanplot of PWS Buffers vs Height')
 plt.xlabel('PWS Buffer')
 plt.ylabel('Height (meters)')
 plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
-plt.tight_layout()
 
 # Show the plot
+plt.tight_layout()
 plt.show()
