@@ -46,6 +46,8 @@ heights_df = pd.read_csv(csv_file_path)
 # Prepare data for the beanplot - extracting each series of heights
 height_data = [heights_df[col].dropna().values for col in heights_df.columns]
 
+# plt.rcParams['figure.subplot.bottom'] = 0.8  # keep labels visible
+
 # Create the figure and axis objects
 fig, ax = plt.subplots(figsize=(12, 8))
 
@@ -55,10 +57,11 @@ plot_opts = {
     'violin_width':0.75,
     'cutoff':True,
     'cutoff_val': 5,  # Absolute cutoff for bean width
-    'cutoff_type': 'abs',  # Type of cutoff, 'abs' for absolute value cutoff
+    'cutoff_type': 'std',  # Type of cutoff, 'abs' for absolute value cutoff
     'label_fontsize': 'small',  # Font size for labels
     'bean_show_meadian':True,
-    'jitter_marker_size':4
+    'jitter_marker_size':4,
+    'bean_legend_text':'Height'
 }
 
 # Create a beanplot
@@ -70,9 +73,9 @@ sm.graphics.beanplot(height_data, labels=heights_df.columns, side='both', jitter
 #     ax.plot([i + 1], [median_val], 'wo')  # 'wo' stands for white circle marker
 
 # Customize plot
-ax.set_title('Beanplot of PWS Buffers vs Height')
-ax.set_xlabel('PWS Buffer')
-ax.set_ylabel('Height (meters)')
+ax.set_title('Beanplot of Building Heights within PWS Buffer')
+ax.set_xlabel('PWS Buffer Distance')
+ax.set_ylabel('Building Heights (meters)')
 
 # Setting y-axis ticks to show only some representative values
 max_height = max([max(data) for data in height_data if len(data) > 0])
