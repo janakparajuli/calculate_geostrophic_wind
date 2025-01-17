@@ -45,7 +45,7 @@ melted_df = heights_df.melt(var_name='PWS_Buffer', value_name='Height')
 
 # Plotting the beanplot using seaborn's violin plot, which is similar to a beanplot
 plt.figure(figsize=(12, 8))
-sns.violinplot(x='PWS_Buffer', y='Height', data=melted_df, inner='stick', scale='width')
+sns.violinplot(x='PWS_Buffer', y='Height', data=melted_df, inner='stick', density_norm='width')
 plt.title('Beanplot of PWS Buffers vs Height')
 plt.xlabel('PWS Buffer')
 plt.ylabel('Height (meters)')
