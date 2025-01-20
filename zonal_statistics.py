@@ -1,55 +1,53 @@
 import geopandas as gpd
 import rasterio
 from rasterio.features import rasterize
-import numpy as np
 from rasterstats import zonal_stats
+import numpy as np
 
 # Paths to your data
-raster_path = r"E:\UAH_Classes\AES_515\Analysis\lst_web_mer"
-shapefile_path = r"E:\UAH_Classes\AES_515\Analysis\KC_Counties.shp"
-output_raster_path = r'E:\UAH_Classes\AES_515\Analysis\lst_cnts_mean.tif'
+raster_path = r"E:\UAH_Classes\AES_515\Asignment_1\Dataset\LST\ECO2LSTE.001_SDS_LST_doy2023231183936_aid0001.tif"
+# raster_path = r"E:\UAH_Classes\AES_515\Analysis\ECO2LSTE.001_SDS_LST_doy2023231183936_aid0001.tif"
+shapefile_path = r"E:\UAH_Classes\AES_515\Analysis\KC_Tracts.shp"
+output_raster_path = r'E:\UAH_Classes\AES_515\Analysis\lst_trct_mean.tif'
 
 # Load the shapefile
 counties = gpd.read_file(shapefile_path)
-# Check and set the CRS for the shapefile
-if counties.crs is None:
-    print("Shapefile has no CRS. Setting to WGS 1984 Web Mercator (EPSG:3857).")
-    counties.set_crs("epsg:3857", inplace=True)
-elif counties.crs.to_string() != 'epsg:3857':
-    print("Reprojecting shapefile to WGS 1984 Web Mercator (EPSG:3857).")
-    counties = counties.to_crs(epsg=3857)
-else:
-    print("Shapefile is already in WGS 1984 Web Mercator (EPSG:3857).")
+if counties.crs is None or not counties.crs.to_string().lower().startswith('epsg'):
+    counties.set_crs('epsg:4326', inplace=True)
+elif counties.crs.to_string() != 'epsg:4326':
+    counties = counties.to_crs('epsg:4326')
+counties = counties[counties.geometry.notnull() & counties.is_valid]
 
-# Load the raster file
+# Open the raster file
 with rasterio.open(raster_path) as src:
-    if src.crs is None:
-        print("Raster has no CRS. Cannot check projection accurately.")
-        raise ValueError("Raster CRS is undefined. Please define or reproject the raster.")
-    elif src.crs.to_string() != 'epsg:3857':
-        print("Raster is not in the correct projection. Please reproject to WGS 1984 Web Mercator (EPSG:3857).")
-        raise ValueError("Incorrect raster CRS. Reprojection needed.")
-    else:
-        print("Raster is in WGS 1984 Web Mercator (EPSG:3857).")
+    if src.crs is None or src.crs.to_string() != 'epsg:3857':
+        print("Raster CRS is not set or incorrect. Setting to EPSG:3857.")
+        src._crs = rasterio.crs.CRS.from_epsg(4326)
 
-        # Calculate zonal statistics
-        stats = zonal_stats(counties, src.read(1), affine=src.transform, stats="mean", nodata=src.nodata)
+    print('crs set')
+    if counties.crs != src.crs:
+        counties = counties.to_crs(src.crs)
 
-        # Add mean temperature to the GeoDataFrame
-        counties['mean_temp'] = [stat['mean'] for stat in stats]
+    stats = zonal_stats(counties, src.read(1), affine=src.transform, stats="mean", nodata=src.nodata, all_touched=True)
+    counties['mean_temp'] = [stat['mean'] if stat is not None else np.nan for stat in stats]
+    print('here')
+    mean_temp_map = rasterize(
+        [(geom, value) for geom, value in zip(counties.geometry, counties['mean_temp'])],
+        out_shape=(src.height, src.width),
+        fill=np.nan,
+        transform=src.transform,
+        all_touched=True
+    )
 
-        # Create a raster of mean temperatures per county
-        mean_temp_map = rasterize(
-            [(geom, value) for geom, value in zip(counties.geometry, counties['mean_temp'])],
-            out_shape=(src.height, src.width),
-            fill=np.nan,  # Fill value outside of counties
-            transform=src.transform,
-            all_touched=True  # Include all pixels that touch a geometry
-        )
+    # Set up metadata for writing
+    meta = src.meta.copy()
+    meta.update({
+        'driver': 'GTiff',  # Specify the GeoTIFF driver
+        'dtype': 'float16',
+        'count': 1,
+        'nodata': np.nan
+    })
 
-        # Update meta to reflect the new single band and data type
-        meta.update(dtype=rasterio.float32, count=1, nodata=np.nan)
-
-        # Write out the new raster
-        with rasterio.open(output_raster_path, 'w', **meta) as out_raster:
-            out_raster.write(mean_temp_map, 1)
+    # Write out the new raster
+    with rasterio.open(output_raster_path, 'w', **meta) as out_raster:
+        out_raster.write(mean_temp_map, 1)
