@@ -6,7 +6,6 @@ import numpy as np
 
 # Paths to your data
 raster_path = r"E:\UAH_Classes\AES_515\Asignment_1\Dataset\LST\ECO2LSTE.001_SDS_LST_doy2023231183936_aid0001.tif"
-# raster_path = r"E:\UAH_Classes\AES_515\Analysis\ECO2LSTE.001_SDS_LST_doy2023231183936_aid0001.tif"
 shapefile_path = r"E:\UAH_Classes\AES_515\Analysis\KC_Tracts.shp"
 output_raster_path = r'E:\UAH_Classes\AES_515\Analysis\lst_trct_mean.tif'
 
@@ -43,7 +42,7 @@ with rasterio.open(raster_path) as src:
     meta = src.meta.copy()
     meta.update({
         'driver': 'GTiff',  # Specify the GeoTIFF driver
-        'dtype': 'float16',
+        'dtype': 'float32',
         'count': 1,
         'nodata': np.nan
     })
